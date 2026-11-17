@@ -108,7 +108,6 @@ console() {
     cp /repo/LICENSE "$P/licenses/goodluckOS-scraper.txt"
     cp "$SRC/curl/COPYING" "$P/licenses/curl.txt"
     cp "$SRC/imgui/LICENSE.txt" "$P/licenses/imgui.txt"
-    cat /repo/app/ICON.txt /repo/app/remixicon-license.txt > "$P/licenses/remixicon.txt"
     cp /usr/share/doc/libmbedtls-dev/copyright "$P/licenses/mbedtls.txt" 2>/dev/null ||
         echo "Mbed TLS, Apache-2.0 OR GPL-2.0-or-later: https://github.com/Mbed-TLS/mbedtls" > "$P/licenses/mbedtls.txt"
     [ -n "$SS_DEVID" ] || echo "NO ScreenScraper developer credentials (SS_DEVID, SS_DEVPASSWORD)"
