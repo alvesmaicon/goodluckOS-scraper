@@ -207,8 +207,10 @@ static void mainPage(State& s) {
         s.settings.save();
     const std::string systems = !s.foldersRead ? tr("looking for games...")
                               : trf("%s of %s", std::to_string(s.chosen()), std::to_string(s.folders.size()));
-    if (row(s, "systems", tr("Systems"), systems, "The ROM folders of the launcher's tabs, and its Games tab.", !s.foldersRead))
+    if (row(s, "systems", tr("Systems"), systems, "The ROM folders of the launcher's tabs, and its Games tab.", !s.foldersRead)) {
+        s.folders = scraperFolders();   // games copied in while the app was open
         s.open(Page::Systems, "system0");
+    }
 
     ImGui::SeparatorText(tr("Scrape"));
     if (s.busy()) {
@@ -332,7 +334,10 @@ static void frame(State& s) {
     if (s.page != Page::Main && input::pressed(Btn::B)) s.open(Page::Main, s.page == Page::Systems ? "systems" : s.busy() ? "scraping" : "start");
 
     // when a run ends, its Stop or Scraping row goes: Start takes its place
-    if (s.wasBusy && !s.busy() && s.page != Page::Systems) s.focus = "start";
+    if (s.wasBusy && !s.busy()) {
+        if (s.page != Page::Systems) s.focus = "start";
+        s.folders = scraperFolders();   // how many games each system has complete now
+    }
     s.wasBusy = s.busy();
 
     const float hintH = ImGui::GetTextLineHeightWithSpacing() * 2 + ImGui::GetStyle().ItemSpacing.y * 2;
