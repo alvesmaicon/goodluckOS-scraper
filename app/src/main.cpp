@@ -415,6 +415,7 @@ int main(int, char**) {
     style.ItemSpacing = ImVec2(8, 2);
     style.SeparatorTextPadding = ImVec2(10, 4);
     style.SeparatorTextBorderSize = 2;
+    style.Colors[ImGuiCol_PlotHistogram] = style.Colors[ImGuiCol_HeaderHovered];   // the progress bar in the rows' blue
 
     State s;
     int frames = 2;
