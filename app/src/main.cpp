@@ -251,13 +251,17 @@ static void systemsPage(State& s) {
 static void runPage(State& s) {
     const bool busy = s.busy();
     if (busy) {
-        if (row(s, "stop", tr("Stop"), "")) stopScraper(s.run);
+        if (row(s, "stop", tr("Stop"), "", "Stops the scraper. Start goes on from where it stopped.")) stopScraper(s.run);
         if (row(s, "dark", tr("Screen off"), "",
                 "Turns the screen off and goes on scraping; any button turns it back on. POWER would pause the scraper.") &&
             screen::off())
             input::enabled = false;
-    } else if (row(s, "start", tr("Start"), "", nullptr, !s.account() || !s.net.online())) {
-        start(s);
+    } else {
+        if (row(s, "back", tr("Back"), "", "Back to the first page. B does the same.")) s.open(Page::Main, "start");
+        if (row(s, "close", tr("Close"), "", "Closes the Scraper; the launcher opens again with what it found."))
+            s.quit = true;
+        if (row(s, "start", tr("Start"), "", "Scrapes again, from where it stopped.", !s.account() || !s.net.online()))
+            start(s);
     }
     if (s.run.state.empty()) {
         info(tr("Status"), tr("Starting..."));
@@ -266,6 +270,7 @@ static void runPage(State& s) {
     const ScraperRun& r = s.run;
     const std::string state = r.state == "done" ? tr("Done") : r.state == "stopped" ? tr("Stopped")
                             : r.state == "error" ? tr("Error")
+                            : r.system.empty() ? tr("Starting...")
                             : r.steps > 1 ? tr(r.system) + " (" + trf("%s of %s", std::to_string(r.step), std::to_string(r.steps)) + ")"
                             : tr(r.system);
     info(tr("Status"), state);
@@ -335,7 +340,9 @@ static void frame(State& s) {
 
     // when a run ends, its Stop or Scraping row goes: Start takes its place
     if (s.wasBusy && !s.busy()) {
-        if (s.page != Page::Systems) s.focus = "start";
+        // a finished run: closing shows its pictures in the launcher; else back, to see why
+        if (s.page == Page::Run) s.focus = s.run.state == "done" ? "close" : "back";
+        else if (s.page == Page::Main) s.focus = "start";
         s.folders = scraperFolders();   // how many games each system has complete now
     }
     s.wasBusy = s.busy();
@@ -347,6 +354,7 @@ static void frame(State& s) {
     else if (s.page == Page::Systems) systemsPage(s);
     else runPage(s);
     ImGui::EndChild();
+    if (s.hint.empty() && s.page != Page::Main) s.hint = tr("B goes back.");
     ImGui::Separator();
     ImGui::PushTextWrapPos(0);
     ImGui::TextDisabled("%s", s.hint.c_str());
