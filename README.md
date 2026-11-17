@@ -61,4 +61,4 @@ The zip also carries its own curl, with Mbed TLS and zlib linked in so it needs 
 
 ## Licenses
 
-GPL-2.0, like goodluckOS, which gl-scrape comes from. The zip's `licenses/` folder has those of [curl](https://curl.se/docs/copyright.html), [Mbed TLS](https://github.com/Mbed-TLS/mbedtls) (Apache-2.0) and [Dear ImGui](https://github.com/ocornut/imgui) (MIT); the CA certificates are Mozilla's (MPL-2.0). Game data and media come from [ScreenScraper](https://www.screenscraper.fr) and its contributors.
+GPL-2.0, like goodluckOS, which gl-scrape comes from. The zip's `licenses/` folder has those of [curl](https://curl.se/docs/copyright.html), [Mbed TLS](https://github.com/Mbed-TLS/mbedtls) (Apache-2.0) and [Dear ImGui](https://github.com/ocornut/imgui) (MIT); the CA certificates are Mozilla's (MPL-2.0), and the icon is file-search-line from [RemixIcon 4.8.0](https://github.com/Remix-Design/RemixIcon/tree/v4.8.0) (Apache-2.0), like goodluckOS's own icons. Game data and media come from [ScreenScraper](https://www.screenscraper.fr) and its contributors.
