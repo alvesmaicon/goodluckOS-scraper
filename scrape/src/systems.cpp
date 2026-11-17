@@ -34,6 +34,7 @@ struct Archive {
     std::string name, tab;
     std::vector<std::string> dirs, exts;
     bool media;
+    std::vector<std::string> icons;
 };
 
 static void parseFile(const std::string& path, const AppsSection& each) {
@@ -84,7 +85,7 @@ std::vector<RomDir> romDirs(const std::vector<std::string>& appsFiles) {
     std::vector<Archive> archives;
     appsSections(appsFiles, [&](const std::string& section, std::map<std::string, std::string> kv) {
         Archive a{kv["NAME"], kv["TAB"], splitList(kv["ENTRY_DIRECTORIES"], ';'), splitList(kv["ENTRY_EXTENSIONS"], ';'),
-                  !kv["MEDIA"].empty() && kv["MEDIA"] != "0"};
+                  !kv["MEDIA"].empty() && kv["MEDIA"] != "0", splitList(kv["ENTRY_ICONS_DIRECTORIES"], ';')};
         if (section != "ARCHIVE" || a.name.empty() || a.dirs.empty()) return;
         for (std::string& e : a.exts)
             for (char& c : e) c = (char)tolower((unsigned char)c);
@@ -97,8 +98,16 @@ std::vector<RomDir> romDirs(const std::vector<std::string>& appsFiles) {
         for (std::string dir : a.media ? std::vector<std::string>() : a.dirs) {
             while (dir.size() > 1 && dir.back() == '/') dir.pop_back();
             if (std::any_of(out.begin(), out.end(), [&](const RomDir& r) { return r.dir == dir; })) continue;
-            RomDir r{dir, dir.substr(dir.find_last_of('/') + 1), a.tab.empty() ? a.name : a.tab, {a.name}, a.exts};
+            RomDir r{dir, dir.substr(dir.find_last_of('/') + 1), a.tab.empty() ? a.name : a.tab, {a.name}, a.exts, dir + "/icons"};
             if (!a.tab.empty()) r.names.push_back(a.tab);
+            // the icon folder the archive lists inside this one, e.g. roms/gba/icons
+            for (std::string icons : a.icons) {
+                while (icons.size() > 1 && icons.back() == '/') icons.pop_back();
+                if (icons.compare(0, dir.size() + 1, dir + "/") == 0) {
+                    r.icons = icons;
+                    break;
+                }
+            }
             out.push_back(r);
         }
     return out;

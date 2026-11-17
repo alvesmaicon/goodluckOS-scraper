@@ -2,7 +2,7 @@
 
 Names, descriptions, pictures and gameplay videos for your games, from [ScreenScraper](https://www.screenscraper.fr), fetched by the console itself. It's an app for goodluckOS's App Installer: no PC program, and nothing to add to the image.
 
-It looks each game up by its file's CRC and size, so renamed ROMs are found too, and writes what it finds next to the games: a `gamelist.xml` in each ROM folder, a `gamelist.<language>.xml` with the descriptions in the interface's language, and the pictures and videos in `media/`. Any launcher that reads `gamelist.xml` (EmulationStation's format) shows them.
+It looks each game up by its file's CRC and size, so renamed ROMs are found too, and writes what it finds next to the games: a `gamelist.xml` in each ROM folder, a `gamelist.<language>.xml` with the descriptions in the interface's language, each game's picture in the tab's icon folder (`icons/<ROM name>.png`, where goodluckOS's launcher already looks for one) and the videos in `media/videos`. Any launcher that reads `gamelist.xml` (EmulationStation's format) shows them all; one that only reads the icons shows the pictures. With Missing only, an icon already there is kept.
 
 ## What it needs
 

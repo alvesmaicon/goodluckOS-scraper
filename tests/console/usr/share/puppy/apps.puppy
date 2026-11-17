@@ -3,6 +3,7 @@
 NAME=Game Boy (Color)
 TAB=GB/GBC
 ENTRY_DIRECTORIES=/home/player/roms/gb;/home/player/roms/gbc
+ENTRY_ICONS_DIRECTORIES=/home/player/roms/gb/icons;/home/player/roms/gbc/icons
 ENTRY_EXTENSIONS=gb;gbc;zip
 COMMAND=retroarch -L /usr/lib/libretro/gambatte_libretro.so %s
 
@@ -10,6 +11,7 @@ COMMAND=retroarch -L /usr/lib/libretro/gambatte_libretro.so %s
 NAME=Game Boy Advance
 TAB=GBA
 ENTRY_DIRECTORIES=/home/player/roms/gba
+ENTRY_ICONS_DIRECTORIES=/home/player/roms/gba/icons
 ENTRY_EXTENSIONS=gba;zip
 COMMAND=retroarch -L /usr/lib/libretro/mgba_libretro.so %s
 
@@ -17,6 +19,7 @@ COMMAND=retroarch -L /usr/lib/libretro/mgba_libretro.so %s
 NAME=Nintendo
 TAB=NES
 ENTRY_DIRECTORIES=/home/player/roms/nes
+ENTRY_ICONS_DIRECTORIES=/home/player/roms/nes/icons
 ENTRY_EXTENSIONS=nes;zip
 COMMAND=retroarch -L /usr/lib/libretro/fceumm_libretro.so %s
 
@@ -24,6 +27,7 @@ COMMAND=retroarch -L /usr/lib/libretro/fceumm_libretro.so %s
 NAME=Super Nintendo
 TAB=SNES
 ENTRY_DIRECTORIES=/home/player/roms/snes
+ENTRY_ICONS_DIRECTORIES=/home/player/roms/snes/icons
 ENTRY_EXTENSIONS=sfc;smc;zip
 COMMAND=retroarch -L /usr/lib/libretro/snes9x2005_libretro.so %s
 
@@ -31,5 +35,6 @@ COMMAND=retroarch -L /usr/lib/libretro/snes9x2005_libretro.so %s
 NAME=Mega Drive
 TAB=MD
 ENTRY_DIRECTORIES=/home/player/roms/megadrive
+ENTRY_ICONS_DIRECTORIES=/home/player/roms/megadrive/icons
 ENTRY_EXTENSIONS=md;bin;zip
 COMMAND=retroarch -L /usr/lib/libretro/picodrive_libretro.so %s

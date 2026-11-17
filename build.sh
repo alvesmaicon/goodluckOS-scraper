@@ -6,6 +6,8 @@
 #   ./build.sh native               the screen and gl-scrape for this machine, in out/native
 #   ./build.sh shot <name> <keys>   the native screen in Xvfb on a made-up console, a screenshot at each "|" in out/shots
 #                                   (keys: xdotool names, "_" waits a second; SHOT_LANG=pt_BR.UTF-8 for Portuguese)
+#   ./build.sh real [folder...]     a real ScreenScraper run of the native gl-scrape on that console, no videos
+#                                   (SS_USER and SS_PASSWORD: your account)
 # ScreenScraper's developer credentials come from SS_DEVID and SS_DEVPASSWORD (.env, or a CI secret), never from git;
 # without them gl-scrape says so. Runs in the goodluckos-scraper image (Dockerfile); downloads and build trees stay in
 # the scraper-work volume.
@@ -17,9 +19,10 @@ IMAGE=goodluckos-scraper
 if [ ! -f /.dockerenv ]; then
     docker image inspect $IMAGE >/dev/null 2>&1 || docker build -t $IMAGE "$HERE"
     if [ -f "$HERE/.env" ]; then set -a; . "$HERE/.env"; set +a; fi
-    export SS_DEVID="${SS_DEVID:-}" SS_DEVPASSWORD="${SS_DEVPASSWORD:-}" SHOT_LANG="${SHOT_LANG:-}"
+    export SS_DEVID="${SS_DEVID:-}" SS_DEVPASSWORD="${SS_DEVPASSWORD:-}" SS_USER="${SS_USER:-}" SS_PASSWORD="${SS_PASSWORD:-}"
+    export SHOT_LANG="${SHOT_LANG:-}"
     export APP_VERSION="${APP_VERSION:-$(git -C "$HERE" describe --tags --always 2>/dev/null || echo dev)}"
-    exec docker run --rm -i -e SS_DEVID -e SS_DEVPASSWORD -e APP_VERSION -e SHOT_LANG \
+    exec docker run --rm -i -e SS_DEVID -e SS_DEVPASSWORD -e SS_USER -e SS_PASSWORD -e APP_VERSION -e SHOT_LANG \
         -v "$HERE:/repo" -v scraper-work:/work $IMAGE /repo/build.sh "$@"
 fi
 
@@ -134,11 +137,15 @@ native() {
 }
 
 # The container as a console: the launcher's tabs, a few games and an account, from tests/console
+fake_console() {
+    cp -r /repo/tests/console/. /
+    (cd /home/player/roms && while read -r f; do mkdir -p "$(dirname "$f")"; head -c 1024 /dev/zero > "$f"; done < games.txt)
+}
+
 shot() {
     local name=$1 keys=$2 n=0 k
     native
-    cp -r /repo/tests/console/. /
-    (cd /home/player/roms && while read -r f; do mkdir -p "$(dirname "$f")"; head -c 1024 /dev/zero > "$f"; done < games.txt)
+    fake_console
     mkdir -p "$OUT/shots"
     Xvfb :99 -screen 0 640x480x24 -nolisten tcp >/dev/null 2>&1 &
     local X=$!
@@ -157,10 +164,20 @@ shot() {
     kill $A $X 2>/dev/null || true
 }
 
+real() {
+    native
+    fake_console
+    "$OUT/native/bin/gl-scrape" --no-video --status /tmp/gl-scrape.status "$@" || true
+    cat /tmp/gl-scrape.status 2>/dev/null | grep -E '^(state|found|notfound|failed|message)=' || true
+    find /home/player/roms -path '*/icons/*' -type f | sort
+    grep -ho '<image>[^<]*</image>' /home/player/roms/*/gamelist.xml 2>/dev/null || true
+}
+
 case "${1:-}" in
     "") console ;;
     app) app ;;
     native) native ;;
     shot) [ $# -eq 3 ] || { echo "usage: ./build.sh shot <name> \"<keys>\""; exit 2; }; shot "$2" "$3" ;;
-    *) sed -n '2,11p' "$0"; exit 2 ;;
+    real) shift; real "$@" ;;
+    *) sed -n '2,13p' "$0"; exit 2 ;;
 esac

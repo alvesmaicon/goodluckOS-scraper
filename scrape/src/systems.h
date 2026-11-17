@@ -12,6 +12,7 @@ struct RomDir {
     std::string tab;                    // the tab's label: TAB=, else NAME=
     std::vector<std::string> names;     // NAME= and TAB=
     std::vector<std::string> exts;      // lower case
+    std::string icons;                  // where the launcher looks for a game's picture, <name>.png
 };
 
 // Each section of Puppy's apps files (a directory: its *.puppy files, by name): its name and keys in upper case

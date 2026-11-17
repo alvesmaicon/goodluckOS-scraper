@@ -1,7 +1,7 @@
 // gl-scrape: names, descriptions, pictures and videos of the games in the ROM folders, from
-// ScreenScraper, written to each folder's gamelist.xml (and gamelist.<language>.xml), which the
-// launcher reads; those of the Games tab go to the ports folder's. System Settings -> System -> Scraper
-// runs it; it also runs from a shell.
+// ScreenScraper, written to each folder's gamelist.xml (and gamelist.<language>.xml), with each picture
+// as the game's icon too; those of the Games tab go to the ports folder's. The Scraper app runs it; it
+// also runs from a shell.
 #include <algorithm>
 #include <csignal>
 #include <cstdio>
@@ -326,17 +326,32 @@ static void writeFile(const std::string& path, const std::string& text) {
     }
 }
 
-// Downloads a media file next to the ROMs unless it's there; the gamelist's path for it
+// A path in the gamelist: relative to the ROM folder when it's inside it
+static std::string relative(const std::string& dir, const std::string& path) {
+    return path.compare(0, dir.size() + 1, dir + "/") == 0 ? "./" + path.substr(dir.size() + 1) : path;
+}
+
+// Downloads a media file next to the ROMs unless it's there; the gamelist's path for it. A ROM's picture goes
+// where the launcher looks for its icon, icons/<name>.png, so a launcher that reads no gamelist shows it too,
+// and an icon already there (png or jpg) is kept unless all is asked for.
 static std::string fetchMedia(ScreenScraper& ss, const Options& o, const Folder& f, const Json* m, const char* sub,
                               const std::string& base, const std::string& now, bool picture, Progress& p) {
     if (!m) return "";
     std::string ext = (*m)["format"].text;
     if (ext.empty()) ext = picture ? "png" : "mp4";
-    const std::string rel = std::string("./media/") + sub + "/" + base + "." + ext;
-    const std::string path = f.dir + "/" + rel.substr(2);
-    if (!o.all && exists(path)) return rel;
-    if (!o.all && fileThere(f.dir, now)) return now;
-    makeDirs(f.dir + "/media/" + sub);
+    const bool icon = picture && f.folder != kGames;
+    const std::string dir = icon ? f.icons : f.dir + "/media/" + sub;
+    const std::string path = dir + "/" + base + "." + ext;
+    const std::string rel = relative(f.dir, path);
+    if (!o.all) {
+        if (exists(path)) return rel;
+        for (const char* e : {"png", "jpg", "jpeg"}) {
+            const std::string own = dir + "/" + base + "." + e;
+            if (icon && exists(own)) return relative(f.dir, own);
+        }
+        if (fileThere(f.dir, now)) return now;
+    }
+    makeDirs(dir);
     const std::string url = ss.mediaUrl((*m)["url"].text, picture ? o.width : 0, picture ? o.height : 0);
     for (int attempt = 0; attempt < 3; ++attempt) {
         const Fetched r = download(url, path, picture ? 60 : 300);
