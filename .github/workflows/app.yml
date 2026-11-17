@@ -1,0 +1,54 @@
+name: App
+
+# The App Installer's zip (./build.sh app): on every push to main as an artifact, and for a tag like v0.1.0 as that
+# tag's release, with RELEASE.md as its notes. ScreenScraper's developer credentials come from the repository's secrets.
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Build the app
+        env:
+          SS_DEVID: ${{ secrets.SS_DEVID }}
+          SS_DEVPASSWORD: ${{ secrets.SS_DEVPASSWORD }}
+        run: |
+          v=$(git describe --tags --always)
+          case $GITHUB_REF in refs/tags/v*) v=${GITHUB_REF_NAME#v} ;; esac
+          export APP_VERSION=$v
+          ./build.sh
+          ./build.sh app
+          ls -la out/Scraper-*.zip
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: scraper-app
+          path: out/Scraper-*.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" out/Scraper-*.zip --repo "$GITHUB_REPOSITORY" \
+            --title "Scraper ${GITHUB_REF_NAME#v} for goodluckOS" --notes-file RELEASE.md
