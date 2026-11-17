@@ -1,0 +1,9 @@
+# The scraper as an app for goodluckOS's App Installer; build.sh fills in the version
+[ENTRY]
+CATEGORY=Apps
+NAME=Scraper
+DESCRIPTION=Names, descriptions, covers and videos of your games, from ScreenScraper
+DESCRIPTION_pt-BR=Nomes, descrições, capas e vídeos dos seus jogos, do ScreenScraper
+COMMAND=./scraper
+ICON=icon.png
+VERSION=@VERSION@

@@ -1,0 +1,10 @@
+gb/Tetris (World).gb
+gbc/Pokemon - Crystal Version (USA).gbc
+gba/Advance Wars (USA).gba
+gba/Golden Sun (USA).gba
+gba/Metroid Fusion (USA).gba
+nes/Super Mario Bros. 3 (USA).nes
+nes/Mega Man 2 (USA).nes
+snes/Super Mario World (USA).sfc
+snes/Chrono Trigger (USA).sfc
+megadrive/Sonic The Hedgehog 2 (World).md
